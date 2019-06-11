@@ -1,11 +1,7 @@
 const bodyparser = require('./bodyparser');
 const testMiddleware = require('./testMiddleware');
 
-const applyMiddlewares = app => {
-    const middlewares = [bodyparser, testMiddleware];
-    middlewares.forEach(middleware => {
-        return app.use(middleware)
-    })
-}
+const middlewares = [bodyparser, testMiddleware];
+const applyMiddlewares = app => middlewares.forEach(middleware => middleware(app));
 
 module.exports = applyMiddlewares
