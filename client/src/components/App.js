@@ -4,13 +4,15 @@ import axios from 'axios';
 const App = props => {
 
     const login = () => {
-        axios.
+        axios.get('/api/auth/fb-login').then(res => {
+            console.log(res.data)
+        })
     }
 
     return(
         <div>
             <h1>App</h1>
-            <button onClick={() => login()}>Login</button>
+            <a href='/api/auth/fb-login'>Login</a>
         </div>
     )
 }

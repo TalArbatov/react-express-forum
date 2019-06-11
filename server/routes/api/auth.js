@@ -1,5 +1,7 @@
 const router = require('express').Router();
 const User = require('mongoose').model('User');
+const passport = require('passport');
+
 
 router.post('/login', (req,res,next) => {
     const {username,email,password} = req.body;
@@ -14,8 +16,15 @@ router.post('/login', (req,res,next) => {
     })
 })
 
+router.get('/fb-login', passport.authenticate('facebook'))
+
 router.get('/login', (req,res,next) => {
     res.send('wow')
 })
+router.get('/return', 
+  passport.authenticate('facebook', { failureRedirect: '/api/auth/login' }),
+  function(req, res) {
+    res.redirect('/');
+  });
 
 module.exports = router;

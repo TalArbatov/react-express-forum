@@ -4,27 +4,39 @@ const localStrategy = require("passport-local").Strategy;
 const { ExtractJwt } = require("passport-jwt");
 const mongoose = require("mongoose");
 const User = mongoose.model("User");
-const config = require('../config');
-const FacebookStrategy = require('passport-facebook').Strategy;
+const config = require("../config");
+const FacebookStrategy = require("passport-facebook").Strategy;
 require("dotenv").config();
 
-passport.use(new FacebookStrategy({
-    clientID: config.facebook.appID,
-    clientSecret: config.facebook.secret,
-    callbackURL: "http://localhost:2005/api/auth/fb-login"
-  },
-  function(accessToken, refreshToken, profile, cb) {
-    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
-      return cb(err, user);
-    });
-  }
-));
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: config.facebook.appID,
+      clientSecret: config.facebook.secret,
+      callbackURL: "/api/auth/return",
+      profileFields: ['id', 'displayName', 'photos']
+    },
+    function(accessToken, refreshToken, profile, cb) {
+    //   User.findOrCreate({ facebookId: profile.id }, function(err, user) {
+    //     return cb(err, user);
+    //   });
+    console.log(profile);
+    return cb(profile)
+    }
+  )
+);
+passport.serializeUser(function(user, cb) {
+  cb(null, user);
+});
 
+passport.deserializeUser(function(obj, cb) {
+  cb(null, obj);
+});
 passport.use(
   new jwtStrategy(
     {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken("Authorization"),
-      secretOrKey: process.env.JWT_SECRET
+      secretOrKey: config.jwt.secret
     },
     (payload, done) => {
       //console.log('inside paassport jwt');
@@ -71,10 +83,9 @@ passport.use(
               console.log("LOGIN ERROR: General err comparing passwords");
               done("Error inside passport.js localStarategy", false);
             } else if (!isMatch) {
-              console.log('LOGIN ERROR: passwords dont match')
+              console.log("LOGIN ERROR: passwords dont match");
               done("MISMATCH inside passport.js localStarategy", false);
-            }
-            else done(null, user);
+            } else done(null, user);
           });
         }
       });

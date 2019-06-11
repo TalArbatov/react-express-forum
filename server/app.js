@@ -4,6 +4,7 @@ const path = require('path');
 const applyMiddlewares = require('./middlewares');
 const config = require('./config')
 const mongoose = require('mongoose')
+const passport = require('passport')
 
 //connect to mongo
 mongoose.connect(config.dbAddress, {useNewUrlParser: true}, (err) => {
@@ -12,10 +13,18 @@ mongoose.connect(config.dbAddress, {useNewUrlParser: true}, (err) => {
 //load mongoose schemas
 require('./models/UserSchema')
 
+
+//get passport strategies
+require('./config/passport');
+
+
 //init app and apply middlewares
 const app = express();
 applyMiddlewares(app);
 app.use(require('./routes') )
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 
 app.listen(config.port, () => {
